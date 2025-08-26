@@ -1,0 +1,17 @@
+[project]
+name = "activitions-compare"
+version = "0.1.0"
+description = "Activation function comparison experiments (tanh, ReLU, LeakyReLU, GELU, SiLU)"
+authors = [{name = "Your Name"}]
+requires-python = ">=3.10"
+dependencies = [
+  "torch>=2.1.0",
+  "torchvision>=0.16.0",
+  "tqdm",
+  "numpy",
+  "pillow",
+]
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
