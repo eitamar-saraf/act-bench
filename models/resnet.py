@@ -8,18 +8,7 @@ from typing import Type, Callable, Optional
 import torch
 import torch.nn as nn
 from models.activations import get_activation
-
-# Kaiming fan_in initialization applied manually so it is consistent across activations.
-
-def kaiming_fanin_(module: nn.Module):
-    if isinstance(module, nn.Conv2d):
-        nn.init.kaiming_normal_(module.weight, mode="fan_in", nonlinearity="relu")
-        if module.bias is not None:
-            nn.init.zeros_(module.bias)
-    elif isinstance(module, nn.Linear):
-        nn.init.kaiming_normal_(module.weight, mode="fan_in", nonlinearity="relu")
-        if module.bias is not None:
-            nn.init.zeros_(module.bias)
+from models.init import apply_init
 
 
 class BasicBlock(nn.Module):
@@ -68,7 +57,7 @@ class ResNet(nn.Module):
         self.fc = nn.Linear(512 * block.expansion, num_classes)
 
         # Initialize weights consistently.
-        self.apply(kaiming_fanin_)
+        apply_init(self, "kaiming_fanin")
         # Explicit BN init
         for m in self.modules():
             if isinstance(m, nn.BatchNorm2d):

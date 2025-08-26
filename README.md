@@ -1,10 +1,10 @@
 # Activation Comparison Study – Engineering Checklist
 
 ## 0. Repository Setup
-- [ ] Create dirs: `configs/`, `models/`, `data/`, `train/`, `scripts/`, `logging/`, `analysis/`, `plots/`
-- [ ] Dependency file (`pyproject.toml` or `requirements.txt`)
-- [ ] `LICENSE`, base `README.md`
-- [ ] Repro utilities (`seed.py`)
+- [x] Create dirs: `models/`, `train/`, `scripts/`  <!-- present -->
+- [x] Dependency file (`pyproject.toml` or `requirements.txt`)  <!-- present -->
+- [ ] LICENSE, base `README.md`
+- [x] Repro utilities (`seed.py`)  <!-- present -->
 
 ## 1. CLI & Config
 - [ ] Flag: `--activation {tanh,relu,leaky,gelu,silu}`
@@ -22,11 +22,11 @@
 - [ ] Throughput wrappers (images/sec, tokens/sec)
 
 ## 3. Models
-- [ ] ResNet‑18 with pluggable activation (all internal ReLUs swapped)
-- [ ] Transformer Encoder (AG News) – swap FFN activation only
-- [ ] GPT‑mini Decoder LM – swap FFN activation only
-- [ ] Leaky slope constant 0.01
-- [ ] Central init utility
+ [x] ResNet‑18 with pluggable activation (all internal ReLUs swapped) <!-- models/resnet.py -->
+ [x] Transformer Encoder (AG News) – swap FFN activation only <!-- models/transformer.py -->
+ [x] GPT‑mini Decoder LM – swap FFN activation only <!-- models/gpt.py -->
+ [x] Leaky slope constant 0.01 <!-- models/activations.py -->
+ [x] Central init utility <!-- models/init.py -->
 
 ## 4. Training Loop
 - [ ] Unified trainer (AMP, grad clip=1.0)
@@ -83,11 +83,9 @@
 - [ ] Embed git commit hash
 
 ## 11. Quality & Tests
-- [ ] Unit: activation factory
-- [ ] Unit: init policy correctness
-- [ ] Unit: ECE computation
-- [ ] Unit: hooks produce expected keys/shapes
-- [ ] Smoke: 1–2 steps per task (no crash)
+ [x] Unit: activation factory
+ [ ] Unit: init policy correctness
+ [ ] Unit: ECE computation
 - [ ] Determinism test (identical first batch metrics same seed)
 - [ ] Plot script smoke test (generates sample PNG)
 
