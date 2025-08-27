@@ -3,13 +3,13 @@
 ## 0. Repository Setup
 - [x] Create dirs: `models/`, `train/`, `scripts/`  <!-- present -->
 - [x] Dependency file (`pyproject.toml` or `requirements.txt`)  <!-- present -->
-- [ ] LICENSE, base `README.md`
+- [x] LICENSE, base `README.md`
 - [x] Repro utilities (`seed.py`)  <!-- present -->
 
 ## 1. CLI & Config
-- [ ] Flag: `--activation {tanh,relu,leaky,gelu,silu}`
-- [ ] `--task {vision,cls,lm}`
-- [ ] `--seed`, `--run_id`, `--log_dir`
+- [x] Flag: `--activation {tanh,relu,leaky,gelu,silu}`
+- [x] `--task {vision,cls,lm}`
+- [x] `--seed`, `--run_id`, `--log_dir`
 - [ ] Auto init policy: CNN→Kaiming fan_in, Transformer→Xavier uniform
 - [ ] Config templates (YAML/JSON) per task
 - [ ] Override order: CLI > config > defaults
