@@ -1,0 +1,9 @@
+# Default configuration for the vision task (ResNet on Tiny-ImageNet)
+task: "vision"
+activation: "relu"
+
+learning_rate: 1e-3
+batch_size: 128
+max_epochs: 20
+warmup_steps: 500
+adamw_weight_decay: 0.01

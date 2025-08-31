@@ -10,16 +10,16 @@
 - [x] Flag: `--activation {tanh,relu,leaky,gelu,silu}`
 - [x] `--task {vision,cls,lm}`
 - [x] `--seed`, `--run_id`, `--log_dir`
-- [ ] Auto init policy: CNN→Kaiming fan_in, Transformer→Xavier uniform
-- [ ] Config templates (YAML/JSON) per task
-- [ ] Override order: CLI > config > defaults
+- [x] Auto init policy: CNN→Kaiming fan_in, Transformer→Xavier uniform
+- [x] Config templates (YAML/JSON) per task
+- [x] Override order: CLI > config > defaults
 
 ## 2. Datasets & DataLoaders
-- [ ] Tiny-ImageNet loader (RRC(64), HFlip(0.5), optional fixed ColorJitter)
-- [ ] AG News tokenizer + cached BPE vocab (~30k)
-- [ ] WikiText‑2 LM dataset (context length=256)
-- [ ] Deterministic shuffling (seeded)
-- [ ] Throughput wrappers (images/sec, tokens/sec)
+- [x] Tiny-ImageNet loader (RRC(64), HFlip(0.5), optional fixed ColorJitter)
+- [x] AG News tokenizer + cached BPE vocab (~30k)
+- [x] WikiText‑2 LM dataset (context length=256)
+- [x] Deterministic shuffling (seeded) -- use `--deterministic_shuffle`
+- [x] Throughput wrappers (images/sec, tokens/sec)
 
 ## 3. Models
  [x] ResNet‑18 with pluggable activation (all internal ReLUs swapped) <!-- models/resnet.py -->
@@ -29,21 +29,21 @@
  [x] Central init utility <!-- models/init.py -->
 
 ## 4. Training Loop
-- [ ] Unified trainer (AMP, grad clip=1.0)
-- [ ] Cosine scheduler + warmup (epochs or steps)
-- [ ] AdamW params per task
-- [ ] Checkpoint best + periodic
-- [ ] Resume (model, optimizer, sched, scaler, RNG)
+- [x] Unified trainer (AMP, grad clip=1.0)
+- [x] Cosine scheduler + warmup (epochs or steps)
+- [x] AdamW params per task
+- [x] Checkpoint best + periodic
+- [x] Resume (model, optimizer, sched, scaler, RNG)
 
 ## 5. Metrics & Logging
-- [ ] Vision: Top‑1/Top‑5
-- [ ] CLS: Accuracy, F1
-- [ ] LM: Perplexity
-- [ ] Calibration: ECE + reliability diagrams
-- [ ] Throughput + peak GPU memory
-- [ ] Train/val loss & metric curves
-- [ ] CSV logger + TensorBoard / W&B optional
-- [ ] Run metadata JSON (activation, seed, git commit, timestamp)
+- [x] Vision: Top‑1/Top‑5
+- [x] CLS: Accuracy, F1
+- [x] LM: Perplexity
+- [x] Calibration: ECE (metric). Reliability diagrams pending
+- [x] Throughput + peak GPU memory
+- [x] Train/val loss & metric curves (logged via Lightning to CSV/TensorBoard/W&B)
+- [x] CSV logger + TensorBoard / W&B optional
+- [x] Run metadata JSON (activation, seed, git commit, timestamp)
 
 ## 6. Instrumentation Hooks
 - [ ] Forward hooks capture activations
