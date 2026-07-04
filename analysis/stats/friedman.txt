@@ -1,0 +1,3 @@
+Friedman test on activation × task rank matrix
+chi2 = 22.971429
+p    = 0.000806

@@ -1,0 +1,9 @@
+activation,cls,lm,lm_large,vision_cnn,vision_vit
+gelu,2.0,2.0,2.0,3.0,2.0
+leaky,5.0,4.0,3.0,5.0,4.0
+mish,4.0,6.0,6.0,2.0,5.0
+relu,6.0,3.0,4.0,4.0,3.0
+scaled_tanh,8.0,8.0,8.0,7.0,8.0
+silu,3.0,5.0,5.0,1.0,6.0
+swiglu,1.0,1.0,1.0,,1.0
+tanh,7.0,7.0,7.0,6.0,7.0

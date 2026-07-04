@@ -1,9 +1,21 @@
-# Default configuration for the classification task (Transformer on AG News)
-task: "cls"
-activation: "relu"
+# AG News 4-way classification with a small Transformer encoder.
 
-learning_rate: 5e-5
+task: cls
+
+# Optimization
+learning_rate: 5.0e-5
 batch_size: 32
 max_epochs: 5
 warmup_steps: 100
 adamw_weight_decay: 0.01
+
+# Text
+max_len: 128
+tokenizer_name: bert-base-uncased
+
+# Model
+d_model: 128
+nhead: 4
+num_layers: 2
+dim_feedforward: 512
+dropout: 0.1

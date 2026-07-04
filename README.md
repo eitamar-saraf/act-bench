@@ -1,109 +1,74 @@
-# Activation Comparison Study – Engineering Checklist
+# act-bench — Activation Functions in Transformer FFNs
 
-## 0. Repository Setup
-- [x] Create dirs: `models/`, `train/`, `scripts/`  <!-- present -->
-- [x] Dependency file (`pyproject.toml` or `requirements.txt`)  <!-- present -->
-- [x] LICENSE, base `README.md`
-- [x] Repro utilities (`seed.py`)  <!-- present -->
+A small benchmark that compares **tanh / ReLU / LeakyReLU / GELU / SiLU** under
+identical optimization, data, and architecture. The whole thing exists to feed
+a single blog post in the
+[Activation Functions Showdown](https://eitamar-saraf.github.io/blog) series —
+the goal is *qualitative training dynamics*, not state-of-the-art numbers.
 
-## 1. CLI & Config
-- [x] Flag: `--activation {tanh,relu,leaky,gelu,silu}`
-- [x] `--task {vision,cls,lm}`
-- [x] `--seed`, `--run_id`, `--log_dir`
-- [x] Auto init policy: CNN→Kaiming fan_in, Transformer→Xavier uniform
-- [x] Config templates (YAML/JSON) per task
-- [x] Override order: CLI > config > defaults
+## Setup
 
-## 2. Datasets & DataLoaders
-- [x] Tiny-ImageNet loader (RRC(64), HFlip(0.5), optional fixed ColorJitter)
-- [x] AG News tokenizer + cached BPE vocab (~30k)
-- [x] WikiText‑2 LM dataset (context length=256)
-- [x] Deterministic shuffling (seeded) -- use `--deterministic_shuffle`
-- [x] Throughput wrappers (images/sec, tokens/sec)
+```bash
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+```
 
-## 3. Models
- [x] ResNet‑18 with pluggable activation (all internal ReLUs swapped) <!-- models/resnet.py -->
- [x] Transformer Encoder (AG News) – swap FFN activation only <!-- models/transformer.py -->
- [x] GPT‑mini Decoder LM – swap FFN activation only <!-- models/gpt.py -->
- [x] Leaky slope constant 0.01 <!-- models/activations.py -->
- [x] Central init utility <!-- models/init.py -->
+## What it does
 
-## 4. Training Loop
-- [x] Unified trainer (AMP, grad clip=1.0)
-- [x] Cosine scheduler + warmup (epochs or steps)
-- [x] AdamW params per task
-- [x] Checkpoint best + periodic
-- [x] Resume (model, optimizer, sched, scaler, RNG)
+- **Task:** causal language modeling on WikiText-2 (raw v1).
+- **Model:** decoder-only mini-GPT (`nn.TransformerEncoder` + causal mask),
+  4 layers × d_model 256 × dim_ff 1024, ~19M params (vocab embedding dominates).
+- **Variants:** 5 activations × N seeds (default 2), 10 runs total.
+- **Precision:** fp32 throughout — bf16 distorts the activation-distribution
+  statistics the post is measuring.
 
-## 5. Metrics & Logging
-- [x] Vision: Top‑1/Top‑5
-- [x] CLS: Accuracy, F1
-- [x] LM: Perplexity
-- [x] Calibration: ECE (metric). Reliability diagrams pending
-- [x] Throughput + peak GPU memory
-- [x] Train/val loss & metric curves (logged via Lightning to CSV/TensorBoard/W&B)
-- [x] CSV logger + TensorBoard / W&B optional
-- [x] Run metadata JSON (activation, seed, git commit, timestamp)
+Per-run artifacts: training/val loss & perplexity curves, per-layer activation
+health stats (dead fraction, tanh saturation, GELU/SiLU moments), per-layer
+gradient L2 norms and relative update size, tokens/sec, peak GPU memory.
 
-## 6. Instrumentation Hooks
-- [ ] Forward hooks capture activations
-- [ ] Dead fraction (post <= 0) for ReLU/Leaky
-- [ ] Tanh saturation (|pre|>4, |post|>0.99)
-- [ ] GELU/SiLU stats (mean, std, skew, kurtosis)
-- [ ] Gradient L2 norms per layer
-- [ ] Relative update norm (‖ΔW‖/‖W‖)
-- [ ] Peak memory tracking
+## Running
 
-## 7. Experiment Orchestration
-- [ ] Grid launcher: 5 activations × 3 seeds × tasks
-- [ ] `--tasks vision,lm,...` subset
-- [ ] GPU allocation / concurrency guard
-- [ ] Skip if existing completed result (idempotent)
+Single run:
+```bash
+python scripts/train.py --activation gelu --seed 0
+```
 
-## 8. Aggregation & Analysis
-- [ ] Collate runs → mean ± std per activation
-- [ ] Time/steps to target metric (accuracy / PPL threshold)
-- [ ] Pareto (throughput vs final metric)
-- [ ] Export Markdown + CSV summary
+Full grid (5 activations × 2 seeds):
+```bash
+python scripts/launch_grid.py --seeds 0,1 --gpus 0,1 --max_concurrent 2
+```
 
-## 9. Plot Generation
-- [ ] Training curves (loss, metric)
-- [ ] Vision: Top‑1 vs epoch; throughput vs Top‑1; ECE vs Top‑1
-- [ ] CLS: Accuracy vs steps; reliability diagram
-- [ ] LM: Perplexity vs steps; steps‑to‑PPL@X bars
-- [ ] Activation health heatmaps (dead %, saturation %, std)
-- [ ] Gradient flow (lines / violins)
-- [ ] Compute bars (throughput, peak memory)
-- [ ] Optional toy 2D decision boundaries panel
+Aggregate after the grid finishes:
+```bash
+python scripts/collect_experiments.py --log_dir logs --out_dir analysis
+```
 
-## 10. Reproducibility
-- [ ] Global seed setter (torch, numpy, random, cudnn flags)
-- [ ] Log seeds
-- [ ] Store resolved config with artifacts
-- [ ] Embed git commit hash
+## Layout
 
-## 11. Quality & Tests
- [x] Unit: activation factory
- [ ] Unit: init policy correctness
- [ ] Unit: ECE computation
-- [ ] Determinism test (identical first batch metrics same seed)
-- [ ] Plot script smoke test (generates sample PNG)
+```
+actbench/
+  data/text.py              # WikiText-2 concatenate-and-chunk
+  models/
+    gpt_mini.py             # decoder-only mini-GPT, causal mask
+    activations.py          # factory: tanh / relu / leaky / gelu / silu
+    init.py                 # Xavier-uniform init
+  training/
+    lit_module.py           # causal LM Lightning module (shifted-target loss)
+    scheduler.py            # warmup + cosine LR
+    seed.py
+  callbacks/
+    activation_stats.py     # per-layer dead %, saturation %, moments
+    gradient_stats.py       # per-layer grad L2, relative update
+    throughput.py           # tokens/sec EMA
+    peak_memory.py          # peak CUDA memory per batch
+configs/lm.yaml             # shared hparams (activation & seed are CLI-only)
+scripts/
+  train.py
+  launch_grid.py
+  collect_experiments.py
+```
 
-## 12. Documentation
-- [ ] Usage (single run + grid)
-- [ ] Config reference
-- [ ] Metric definitions
-- [ ] Limitations / future work
-- [ ] Results placeholder tables
+## Status
 
-## 13. Final Deliverables
-- [ ] Raw logs + checkpoints
-- [ ] Aggregated CSV/Markdown
-- [ ] Figures (PNG + PDF optional)
-- [ ] README results summary
-
-## 14. Optional Enhancements
-- [ ] Hydra/OmegaConf integration
-- [ ] W&B sweep config
-- [ ] BF16 / FP8 toggle
-- [ ] Autocast precision switch flag
+Training, data, and instrumentation paths are complete and pass a smoke run.
+Plot generation and the post itself are in progress.

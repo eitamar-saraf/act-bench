@@ -1,0 +1,21 @@
+# ViT-tiny on CIFAR-10. Pluggable FFN activation, same pattern as the LM model.
+
+task: vision_vit
+
+# Optimization
+learning_rate: 3.0e-4
+batch_size: 128
+max_epochs: 30
+warmup_steps: 500
+adamw_weight_decay: 0.05
+
+# Image
+image_size: 32
+patch_size: 4
+
+# Model
+d_model: 192
+nhead: 3
+num_layers: 4
+dim_feedforward: 768
+dropout: 0.1

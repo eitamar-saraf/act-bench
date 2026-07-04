@@ -1,0 +1,10 @@
+# ResNet-20 on CIFAR-10. Pluggable activation in conv blocks; BatchNorm retained.
+
+task: vision_cnn
+
+# Optimization
+learning_rate: 1.0e-3
+batch_size: 128
+max_epochs: 20
+warmup_steps: 500
+adamw_weight_decay: 5.0e-4

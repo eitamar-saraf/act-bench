@@ -1,24 +1,35 @@
-"""Weight initialization utilities."""
+"""Weight initialization, selected by architecture family."""
 from __future__ import annotations
 import torch.nn as nn
 
-def initialize_weights(model: nn.Module, task: str):
-    if task == "vision":
-        init_fn = _kaiming_init
-    elif task in ["cls", "lm"]:
-        init_fn = _xavier_init
+
+def initialize_weights(model: nn.Module, scheme: str = "xavier") -> None:
+    """Apply weight init in-place.
+
+    Schemes:
+    - "xavier" : transformers / linear+embedding heavy nets.
+    - "kaiming": CNNs (Kaiming-normal, fan_in, relu nonlinearity).
+    """
+    if scheme == "xavier":
+        model.apply(_xavier_init)
+    elif scheme == "kaiming":
+        model.apply(_kaiming_init)
     else:
-        return
-    model.apply(init_fn)
+        raise ValueError(f"Unknown init scheme: {scheme}")
 
-def _kaiming_init(m: nn.Module):
-    if isinstance(m, (nn.Conv2d, nn.Linear)):
-        nn.init.kaiming_normal_(m.weight, mode='fan_in', nonlinearity='relu')
-        if m.bias is not None:
-            nn.init.constant_(m.bias, 0)
 
-def _xavier_init(m: nn.Module):
-    if isinstance(m, (nn.Linear, nn.Embedding)):
-        nn.init.xavier_uniform_(m.weight)
-        if m.bias is not None:
-            nn.init.constant_(m.bias, 0)
+def _xavier_init(module: nn.Module) -> None:
+    if isinstance(module, (nn.Linear, nn.Embedding)):
+        nn.init.xavier_uniform_(module.weight)
+        if isinstance(module, nn.Linear) and module.bias is not None:
+            nn.init.constant_(module.bias, 0)
+
+
+def _kaiming_init(module: nn.Module) -> None:
+    if isinstance(module, (nn.Conv2d, nn.Linear)):
+        nn.init.kaiming_normal_(module.weight, mode="fan_in", nonlinearity="relu")
+        if module.bias is not None:
+            nn.init.constant_(module.bias, 0)
+    elif isinstance(module, nn.BatchNorm2d):
+        nn.init.constant_(module.weight, 1.0)
+        nn.init.constant_(module.bias, 0.0)
