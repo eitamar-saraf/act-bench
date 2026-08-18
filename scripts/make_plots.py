@@ -198,6 +198,8 @@ def plot_cross_task_ranking(per_task_summaries: dict, out_dir: Path) -> None:
         _, _, direction = TASK_DISPLAY[task]
         ascending = direction == "min"
         agg = summary.groupby("activation")[best_col].mean()
+        # Only rank activations we actually display, so ranks read contiguously 1..N.
+        agg = agg[agg.index.isin(ACTIVATION_ORDER)]
         rank = agg.rank(ascending=ascending, method="min").astype(int)
         for activation, rank_value in rank.items():
             rows.append({"activation": activation, "task": task, "rank": rank_value, "mean_metric": agg[activation]})
